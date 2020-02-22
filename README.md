@@ -1,3 +1,3 @@
 # React, Stripe, and Next.js
 
-Video: Coming soon
+Video: https://youtu.be/WTUYem2IxLA
