@@ -8,27 +8,33 @@ import {
 } from "@stripe/react-stripe-js";
 import axios from "axios";
 
-const CheckoutForm = ({ success }) => {
+const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
 
   const handleSubmit = async event => {
     event.preventDefault();
+   
+        const res = await axios.post("/api/charge", { amount: 5000 });
+        
+        
+  
+      const clientSecret = res.data['client_secret'];
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card: elements.getElement(CardElement)
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+      },
     });
-
-    if (!error) {
-      const { id } = paymentMethod;
-
-      try {
-        const { data } = await axios.post("/api/charge", { id, amount: 1099 });
-        console.log(data);
-        success();
-      } catch (error) {
-        console.log(error);
+    if (result.error) {
+      // Show error to your customer (e.g., insufficient funds)
+      console.log(result.error.message);
+      message.error("Card  details are invalid !")
+    } else {
+      // The payment has been processed!
+      if (result.paymentIntent.status === 'succeeded') {
+        console.log('completed');
+        message.success("Thank you your Payment successfully!")
       }
     }
   };
